@@ -1,0 +1,5 @@
+.env
+__pycache__/
+video_env/
+.pytest_cache/
+app/connect_bundle/
