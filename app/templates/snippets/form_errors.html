@@ -1,7 +1,13 @@
 {% if errors %}
         <div>
             {% for error in errors %}
-                <li><b>{{error.loc[0]}}</b>:{{error.msg}}</li>
+                <li>
+                    
+                    {% if error.loc[0] != "__root__" %}
+                    <b>{{error.loc[0]}}</b>:
+                    {% endif %}                        
+                    {{error.msg}}
+                </li>
             {% endfor %}
         </div>    
             
