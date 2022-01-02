@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+
+{% block content %}
+    <h1>Add Video</h1>
+
+    {% include 'snippets/form_errors.html' %}
+    
+    <form action="" method="post">
+        <div>
+            <label for="url">Youtube Link</label>
+            <input type="text" name="url" placeholder="https://www.youtube.com/watch?v=7bZLYwI7NWk">
+        </div>
+
+        <button type="submit">Add Video</button>
+    </form>
+        
+    
+{% endblock content %}
+    

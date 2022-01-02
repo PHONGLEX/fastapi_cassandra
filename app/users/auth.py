@@ -19,7 +19,7 @@ def authenticate(email, password):
     return user_obj    
 
 
-def login(user_obj, expires=5):
+def login(user_obj, expires=settings.session_duration):
     raw_data = {
         "user_id": f"{user_obj.user_id}",
         "role": "admin",
@@ -31,9 +31,9 @@ def login(user_obj, expires=5):
 def verify_user_id(token):
     data = {}
     try:
-        data = jwt.decode(token, settings.secret_key, algorithm=[settings.jwt_algorithm])
+        data = jwt.decode(token, settings.secret_key, algorithms=[settings.jwt_algorithm])
     except ExpiredSignatureError as e:
-        pass
+        print(e, "log out user")
     except:
         pass
     if 'user_id' not in data:
