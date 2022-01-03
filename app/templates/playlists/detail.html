@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+
+
+{% block content %}
+
+{% if object.title %}<h1>{{ object.title }}</h1>{% endif %}
+
+<div id="video-create-form">
+
+</div>
+
+<button hx-get="/playlists/{{object.db_id}}/add-video"
+        hx-trigger="click"
+        hx-target="#video-create-form"
+        hx-swap="beforeend"
+        >
+    Add video form
+</button>
+
+{% endblock %}
+

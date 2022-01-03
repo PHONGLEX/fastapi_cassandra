@@ -7,7 +7,7 @@
     {% for obj in object_list %}
         <li>
             <a href="{{obj.path}}">
-                {% if not obj.title %}{{obj.host_id}}{% else %}{{obj.title}}{% endif %}
+                {% if not obj.title %}{{obj.db_id}}{% else %}{{obj.title}}{% endif %}
             </a>
         </li>        
             

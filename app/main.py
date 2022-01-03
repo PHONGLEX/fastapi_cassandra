@@ -21,14 +21,20 @@ from app.users.exceptions import LoginRequiredException
 from app.users.backends import JWTCookieBackend
 from app.videos.models import Video
 from app.videos.routers import router as video_router
+from app.watch_events.models import WatchEvent
+from app.watch_events.routers import router as watch_event_router
+from app.playlists.models import Playlist
+from app.playlists.routers import router as playlist_router
 
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
+DB_SESSION = None
 
 app = FastAPI()
 app.add_middleware(AuthenticationMiddleware, backend=JWTCookieBackend())
 app.include_router(video_router)
-DB_SESSION = None
+app.include_router(watch_event_router)
+app.include_router(playlist_router)
 
 
 '''
@@ -58,6 +64,8 @@ def on_startup():
     DB_SESSION = db.get_session()
     sync_table(User)
     sync_table(Video)
+    sync_table(WatchEvent)
+    sync_table(Playlist)
 
 
 '''
