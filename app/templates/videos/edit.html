@@ -3,15 +3,19 @@
 
 
 {% block content %}
-        <h1>{% if object.title %}Edit {{ object.title }}{% else %}{{obj.host_id}}{% endif %}</h1>
-
-        <code>{{ object.render() }}</code>
+<div class="row">
+    <div class="col-12 col-md-3">
+        {% include 'videos/sidebar.html' %}
+    </div>
+    <div class="col-12 col-md-9">
+        <h1>Edit Video</h1>
 
         
         {% with video=object  %}
             {% include 'videos/htmx/edit.html' %}            
         {% endwith %}
-            
+    </div>
+</div>            
 
 {% endblock %}
 

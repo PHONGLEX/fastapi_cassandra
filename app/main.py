@@ -1,4 +1,3 @@
-import json
 import pathlib
 from fastapi import FastAPI, Request, Form, HTTPException
 from fastapi.responses import HTMLResponse
@@ -8,6 +7,7 @@ from cassandra.cqlengine.management import sync_table
 from pydantic.error_wrappers import ValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.authentication import requires
+from typing import Optional
 
 from .users.models import User
 from app.users.schemas import (
@@ -16,7 +16,7 @@ from app.users.schemas import (
 )
 from app.users.decorators import login_required
 from . import config, db, utils
-from .shortcuts import render, redirect
+from .shortcuts import render, redirect, is_htmx
 from app.users.exceptions import LoginRequiredException
 from app.users.backends import JWTCookieBackend
 from app.videos.models import Video
@@ -25,6 +25,7 @@ from app.watch_events.models import WatchEvent
 from app.watch_events.routers import router as watch_event_router
 from app.playlists.models import Playlist
 from app.playlists.routers import router as playlist_router
+from app.indexing.client import update_index, search_index
 
 
 BASE_DIR = pathlib.Path(__file__).resolve().parent
@@ -52,7 +53,11 @@ async def http_exception_handler(request, exc):
 
 @app.exception_handler(LoginRequiredException)
 async def login_required_exception_handler(request, exc):
-    return redirect(f"/login?next={request.url}", remove_session=True)
+    response = redirect(f"/login?next={request.url}", remove_session=True)
+    if is_htmx(request):
+        response.status_code = 200
+        response.headers['HX-Redirect'] = "/login"
+    return response
 
 
 '''
@@ -89,14 +94,15 @@ def account_view(request: Request):
 
 @app.get('/login', response_class=HTMLResponse)
 def login_get_view(request: Request):
-    session_id = request.cookies.get('session_id') or None
-    return render(request, "auth/login.html", {
-        "logged_in": session_id is not None
-    })
+    
+    return render(request, "auth/login.html", {})
 
 
 @app.post('/login', response_class=HTMLResponse)
-def login_post_view(request: Request, email: str=Form(...), password:str=Form(...)):
+def login_post_view(request: Request, 
+                    email: str=Form(...), 
+                    password:str=Form(...),
+                    next:Optional[str] = "/"):
     
     
     raw_data = {
@@ -114,7 +120,22 @@ def login_post_view(request: Request, email: str=Form(...), password:str=Form(..
     if len(errors) > 0:
         return render(request, "auth/login.html", context, status_code=400)
     
-    return redirect("/", cookies=data)
+    if "http://127.0.0.1:" not in next:
+        next = "/"
+    
+    return redirect(next, cookies=data)
+
+
+@app.get('/logout', response_class=HTMLResponse)
+def logout_get_view(request: Request):
+    if not request.user.is_authenticated:
+        return redirect('/login')
+    return render(request, "auth/logout.html", {})
+
+
+@app.post('/logout', response_class=HTMLResponse)
+def logout_post_view(request: Request):
+    return redirect("/login", remove_session=True)
 
 
 @app.get('/signup', response_class=HTMLResponse)
@@ -149,7 +170,16 @@ def signup_post_view(request: Request, email: str=Form(...)
     return render(request, "auth/signup.html", context, status_code=400)
 
 
-@app.get('/users')
-def users_list_view():
+@app.get('/search')
+def search_detail_view(request: Request, q:Optional[str] = None):
+    query = None
+    context = {}
+
+    if q is not None:
+        query = q
+        context['query'] = query
+        results = search_index(query)
+        print(results)
+
     q = User.objects.all().limit(10)
-    return list(q)
+    return render(request, "search/detail.html", context)
