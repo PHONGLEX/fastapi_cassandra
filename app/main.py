@@ -170,6 +170,12 @@ def signup_post_view(request: Request, email: str=Form(...)
     return render(request, "auth/signup.html", context, status_code=400)
 
 
+@app.post('/update-index', response_class=HTMLResponse)
+def htmx_update_index(request: Request):
+    count = update_index()
+    return HTMLResponse(f"({count}) Refreshed")
+
+
 @app.get('/search')
 def search_detail_view(request: Request, q:Optional[str] = None):
     query = None
@@ -177,9 +183,15 @@ def search_detail_view(request: Request, q:Optional[str] = None):
 
     if q is not None:
         query = q
-        context['query'] = query
+        
         results = search_index(query)
-        print(results)
-
-    q = User.objects.all().limit(10)
+        hits = results.get('hits') or []
+        num_hits = results.get('dbHits')
+        print(hits)
+        context = {
+            "hits": hits,
+            "num_hits": num_hits,
+            "query": query,
+        }
+    
     return render(request, "search/detail.html", context)

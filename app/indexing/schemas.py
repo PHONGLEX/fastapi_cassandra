@@ -17,13 +17,13 @@ class VideoIndexSchema(BaseModel):
     
     
 class PlaylistIndexSchema(BaseModel):
-    objectID: str = Field(alias="db_id")
+    objectID: uuid.UUID = Field(alias='db_id')
     objectType: str = "Playlist"
     title: Optional[str]
     path: str = Field(default="/")
     
-    @validator("path")
-    def set_path(cls, v, values, **kwargs):
+    @root_validator
+    def set_defaults(cls, values):
         objectID = values.get("objectID")
         values['objectID'] = str(objectID)
         values['path'] = f"/playlists/{objectID}"
