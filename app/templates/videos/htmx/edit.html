@@ -1,0 +1,25 @@
+<div>
+    {% include 'snippets/form_errors.html' %}
+    
+    <form method="post" action="/videos/{{object.host_id}}/hx-edit" hx-post="/videos/{{object.host_id}}/hx-edit">
+
+        <div>
+            <label for="title">Title</label>
+            <input type="text" name="title" required="required" placeholder="Your video title" value="{% if object.title %}{{object.title}}{% endif %}">
+        </div>
+
+        <div>
+            <label for="url">Youtube Link</label>
+            <input type="text" name="url" required="required" placeholder="https://www.youtube.com/watch?v=7bZLYwI7NWk" value="{% if object.url %}{{object.url}}{% endif %}">
+        </div>
+
+        <div>
+            <label for="delete">
+                <input type="checkbox" name="delete" id="delete"> Delete?
+
+            </label>
+        </div>
+
+        <button type="submit">Submit</button>
+    </form>
+</div>

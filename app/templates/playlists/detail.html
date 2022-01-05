@@ -6,13 +6,26 @@
 
 {% if object.title %}<h1>{{ object.title }}</h1>{% endif %}
 
-<div id="video-create-form">
-
+<div id="video-container">
+    
+    {% for video in object.get_videos() %}
+        {% with path=video.path, title=video.title %}
+            <li id="video-item-{{loop.index}}">
+                {% include 'videos/htmx/link.html' %}
+                <button hx-post="/playlists/{{object.db_id}}/{{video.host_id}}/delete/"
+                        hx-target="#video-item-{{loop.index}}"
+                        hx-vals='{"index": "{{ loop.index - 1 }}"}'
+                >Remove</button>
+            </li>            
+        {% endwith %}
+            
+    {% endfor %}
+        
 </div>
 
 <button hx-get="/playlists/{{object.db_id}}/add-video"
         hx-trigger="click"
-        hx-target="#video-create-form"
+        hx-target="#video-container"
         hx-swap="beforeend"
         >
     Add video form

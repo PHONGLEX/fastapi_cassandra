@@ -24,7 +24,7 @@ class Playlist(Model):
         return f"/playlists/{self.db_id}"
     
     def add_host_ids(self, host_ids=[], replace_all=False):
-        if isinstance(host_ids, list):
+        if not isinstance(host_ids, list):
             return False
         
         if replace_all:
@@ -38,6 +38,7 @@ class Playlist(Model):
     
     def get_videos(self):
         videos = []
+        
         for host_id in self.host_ids:
             try:
                 video_obj = Video.objects.get(host_id=host_id)

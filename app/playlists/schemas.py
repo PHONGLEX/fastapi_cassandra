@@ -59,6 +59,6 @@ class PlaylistVideoAddSchema(BaseModel):
         if playlist_id:
             playlist_obj = Playlist.objects.get(db_id=playlist_id)
             playlist_obj.add_host_ids(host_ids=[video_obj.host_id])
-            playlist_obj.save()        
+            playlist_obj.save()  
         
         return video_obj.as_data()
